@@ -19,8 +19,8 @@ class CreateAlbumsTable extends Migration
             $table->increments('id');
             $table->integer('band_id')->unsigned();
             $table->string('name');
-            $table->date('recorded_date');
-            $table->date('release_date');
+            $table->date('recorded_date')->nullable();
+            $table->date('release_date')->nullable();
             $table->integer('number_of_tracks')->nullable();
             $table->string('label')->nullable();
             $table->string('producer')->nullable();
@@ -32,7 +32,7 @@ class CreateAlbumsTable extends Migration
         Schema::table('albums', function (Blueprint $table) {
 
             // Add our foreign key 
-            $table->foreign('band_id')->references('id')->on('bands');
+            $table->foreign('band_id')->references('id')->on('bands')->onDelete('cascade');
 
         });
 

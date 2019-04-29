@@ -11,6 +11,8 @@
 |
 */
 
-Route::get('/', function () {
-    return view('welcome');
-});
+Route::get('/', "BandController@index")->name('site.index');
+
+Route::resource('band', 'BandController');
+Route::resource('album', 'AlbumController');
+

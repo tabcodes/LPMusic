@@ -1,33 +1,51 @@
-
-/**
- * First we will load all of this project's JavaScript dependencies which
- * includes Vue and other libraries. It is a great starting point when
- * building robust, powerful web applications using Vue and Laravel.
- */
-
 require('./bootstrap');
 
-window.Vue = require('vue');
+$(function () {
 
-/**
- * The following block of code may be used to automatically register your
- * Vue components. It will recursively scan this directory for the Vue
- * components and automatically register them with their "basename".
- *
- * Eg. ./components/ExampleComponent.vue -> <example-component></example-component>
- */
+    var tableOptions = {
+        "responsive": true
+    };
 
-// const files = require.context('./', true, /\.vue$/i);
-// files.keys().map(key => Vue.component(key.split('/').pop().split('.')[0], files(key).default));
+    /**
+     * Custom table sorting by band name
+     */
+    $("table.dataTable").each(function () {
+        if ($(this).attr('data-filter-by')) {
+            var table = $(this);
+            var filter_header = table.attr('data-filter-by');
 
-Vue.component('example-component', require('./components/ExampleComponent.vue').default);
+            tableOptions.initComplete = function () {
+                this.api().columns().every(function (index) {
+                    var table_id = table.attr('id');
+                    var column = this;
+                    var column_title = $(column.header()).text();
+                    var found_column = false;
+                    if (filter_header == column_title.toLowerCase()) {
+                        found_column = true;
+                    }
 
-/**
- * Next, we will create a fresh Vue application instance and attach it to
- * the page. Then, you may begin adding components to this application
- * or customize the JavaScript scaffolding to fit your unique needs.
- */
+                    if (found_column == true) {
+                        var select = $('<select class="form-control"><option value=""> Filter By ' + column_title + '</option></select>')
+                            .appendTo($("#" + table_id + "_filter"))
+                            .on('change', function () {
+                                var val = $.fn.dataTable.util.escapeRegex(
+                                    $(this).val()
+                                );
 
-const app = new Vue({
-    el: '#app'
-});
+                                column
+                                    .search(val ? '^' + val + '$' : '', true, false)
+                                    .draw();
+                            });
+                        column.data().unique().sort().each(function (d, j) {
+                            select.append('<option value="' + d + '">' + d + '</option>')
+                        });
+                    }
+                });
+            }
+        }
+    });
+
+    // apply table options
+    $("table.dataTable").dataTable(tableOptions);
+
+})
